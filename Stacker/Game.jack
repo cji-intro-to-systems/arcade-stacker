@@ -1,0 +1,153 @@
+/** Implements the stacker game */
+class Game {
+	
+	field int maxBlocks; // number of blocks stacked to win
+	field boolean instructions1, instructions2; // indicates whether instructions are displayed
+
+	constructor Game new() {
+		let maxBlocks = 20;
+		let instructions1 = true;
+		let instructions2 = false;
+		return this;
+	}
+
+	/**
+	* Run the game
+	* Return true if win, else false
+	*/
+	method boolean run() {
+		var int i; // block counter
+		var Block block;
+		var int speed, positionOffset, width;
+		var int newX, newXMax, lastX, lastWidth;
+		var boolean overlap; // indicates whether block lands on previous block
+
+		let i = 0;
+		let speed = 40;
+		let positionOffset = 10;
+		let width = 200;
+		let block = Block.new(10, 254-positionOffset, width, speed);
+		let lastX = 0;
+		let lastWidth = (512/4)*3;
+
+		// Set up the screen
+		// Instructions and score
+		do Output.moveCursor(11, 17);
+		do Output.printString("Hit [spacebar] to drop a block");
+
+		do Output.moveCursor(22, 55);
+		do Output.printString("Score: ");
+
+		do Output.moveCursor(22, 61);
+		do Output.printInt(i);
+
+		// Start placing blocks
+		while (true) { 
+			let newX = placeBlock(block);
+			let newXMax = newX + width;
+
+			// Check that block landed
+			let overlap = checkOverlap(lastX, lastWidth, newX, width);
+			if (~overlap){
+				return false;
+			}
+
+			// Adjust size of block based on contact with previous block
+			if (newX < lastX) { 
+				let width = width - (lastX - newX);
+				let newX = lastX;
+			}
+
+			if (newXMax > (lastX + lastWidth)){
+				let width = width - (newXMax - (lastX + lastWidth));
+			}
+
+			do block.reDraw(newX, width);
+
+			// check if won
+			if (i = (maxBlocks-1)){
+				let i = i + 1;
+				do Output.moveCursor(22, 61);
+				do Output.printInt(i);
+				return true;
+			}
+
+			// update block position variables
+			let lastX = newX;
+			let lastWidth = width;
+			let speed = Math.max(speed - 2, 3);
+			let positionOffset = positionOffset + 10;
+			let width = Math.max(width, 5);
+			let block = Block.new(10, 254-positionOffset, width, speed);
+			let i = i + 1;
+
+			// update the score
+			do Output.moveCursor(22, 61);
+			do Output.printInt(i);
+		}
+		return false;
+	}
+
+	/** 
+	* Check whether the block lands on the previous block
+	* Returns (boolean)
+	*/
+	method boolean checkOverlap(int lastX, int lastWidth, int newX, int newWidth) {
+		var int lastXMax, newXMax;
+		let lastXMax = lastX + lastWidth;
+		let newXMax = newX + newWidth;
+
+		if((newXMax < lastX) | (newX > lastXMax)){
+			return false;
+		}
+		return true;
+	}
+
+	/** 
+	* When spacebar is pressed, place the block
+	* Returns (int) x, the horizontal position of the block
+	*/
+	method int placeBlock(Block aBlock){
+		var char keyPressed;
+		var int x;
+
+		// move block while spacebar not pressed
+		while (~(keyPressed = 32)) {
+			let keyPressed = Keyboard.keyPressed();
+			do aBlock.move();
+		}
+
+		// wait for spacebar to be released
+		while (keyPressed = 32) {
+            let keyPressed = Keyboard.keyPressed();
+			do aBlock.move();
+        }
+
+        // if instructions are displayed, erase them
+        if (instructions2){
+	        let instructions2 = false;
+	        do Screen.setColor(false);
+	        do Screen.drawRectangle(5*16, 120, 5*16 + 400, 120 + 16);
+        }
+
+        if (instructions1){
+        	let instructions1 = false;
+        	do Screen.setColor(false);
+	        do Screen.drawRectangle(8*16, 120, 8*16 + 256, 120 + 16);
+
+	        let instructions2 = true;
+	        do Output.moveCursor(11, 23);
+			do Output.printString("Stack 20 blocks to win!");
+        }
+
+        // get the horizontal position of the block
+        let x = aBlock.getX();
+		return x;
+	}
+
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+	}
+
+}

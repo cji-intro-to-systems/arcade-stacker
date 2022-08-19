@@ -1,0 +1,83 @@
+/** 
+* Implements a rectangular block 
+* Block slides left and right across the screen
+*/
+
+class Block {
+	
+	field int x, y; // location of top left corner
+	field int height, width; // height and width of block
+	field int screenMin, screenMax; // represents (horizontal) segment of screen block can occupy
+	field boolean direction; // if true move right, false move left
+	field int speed; // represents speed at which block moves (refresh wait time)
+
+	/** Constructs a new block **/
+	constructor Block new(int ix, int iy, int iwidth, int ispeed){
+		let x = ix;
+		let y = iy;
+		let width = iwidth;
+		let height = 10;
+		let screenMin = 10;
+		let screenMax = (512/4)*3;
+		let direction = true;
+		let speed = ispeed;
+		do draw();
+		return this;
+	}
+
+	/** Draw the block **/
+	method void draw() {
+		do Screen.setColor(true);
+		do Screen.drawRectangle(x, y, x + width, y + height);
+		return;
+	}
+
+	/** Erase the block **/
+	method void erase() {
+		do Screen.setColor(false);
+		do Screen.drawRectangle(x, y, x + width, y + height);
+		return;
+	}
+
+	/** Redraw the block **/
+	method void reDraw(int ix, int iwidth){
+		do erase();
+		let x = ix;
+		let width = iwidth;
+		do draw();
+		return;
+	}
+
+	/** Get the x position of the block **/
+	method int getX() {
+		return x;
+	}
+
+	/** Slide the block horizontally **/
+	method void move() {
+		do Sys.wait(speed);
+
+		// reset the direction of block is out of bounds
+		if (x < screenMin){ let direction = true; }
+		if ((x+width) > screenMax){ let direction = false; }
+
+		do erase(); // erase the block
+
+		// Move the block left or right
+		if(direction){
+			let x = x + 4;
+
+		}else{
+			let x = x - 4;
+		}
+		
+		do draw(); // re-draw the block
+		return;
+	}
+
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+   }
+
+}

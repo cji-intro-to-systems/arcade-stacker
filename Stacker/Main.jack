@@ -1,0 +1,65 @@
+/**  Initializes a new Stacker game and starts running it. */
+class Main {
+
+	function void main() {
+		var int keyPressed;
+	 	while (true) {
+
+	 		// run the game
+	 		do Main.runProgram();
+
+	 		// clear screen and reset if user presses r
+			do Output.moveCursor(4, 22);
+			do Output.printString("Type [r] to reset");
+
+			while (~(keyPressed = 82)) {
+				let keyPressed = Keyboard.keyPressed();
+			}
+
+			while (keyPressed = 82) {
+				let keyPressed = Keyboard.keyPressed();
+			}
+
+			do Main.clearScreen();
+		}
+
+		return;
+	}
+
+	/** Runs the game **/
+	function void runProgram() {
+
+		var TitleScreen titleScreen;
+		var Game game;
+		var boolean win;
+
+		// Show title screen until user presses key
+		let titleScreen = TitleScreen.new();
+		do titleScreen.run();
+		do titleScreen.dispose();
+
+		// Run game
+		let game = Game.new();
+		let win = game.run();
+
+		if (win) {
+			do Output.moveCursor(3, 26);
+			do Output.printString("You win!");
+
+		} else {
+			do Output.moveCursor(3, 26);
+			do Output.printString("Game Over!");
+		}
+
+		do game.dispose();
+
+		return;
+	}
+
+	/** Clear screen between game sessions **/
+	function void clearScreen(){
+		do Screen.setColor(false);
+	    do Screen.drawRectangle(0, 0, 511, 255);
+	    return;
+	}
+}
