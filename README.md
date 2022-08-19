@@ -10,3 +10,5 @@ The game is located in the `Stacker` directory.
 - If when dropped, the block does not contact the previous block, the game ends
 - Stack 20 blocks to win
 - (The easiest way to win is to hit `[spacebar]` rapidly, immediately after starting the game)
+
+![alt text](stacker.png)
